@@ -6,11 +6,18 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 16:02:10 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/20 15:47:57 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/20 16:52:18 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void allocate_stuffs(t_data *data)
+{
+    data->philo = malloc(sizeof(t_philo) * data->num_of_philos);
+    data->philo_threads = malloc(sizeof(pthread_t) * data->num_of_philos);
+    data->forks = malloc(sizeof(pthread_mutex_t) * data->num_of_philos);
+}
 
 void init(int ac , char *av[], t_data *data)
 {
@@ -21,6 +28,11 @@ void init(int ac , char *av[], t_data *data)
     data->time_to_eat = ft_atoi(av[4]);
     data->time_to_sleep = ft_atoi(av[5]);
     data->num_of_meals = -1;
+    pthread_mutex_init(&data->is_dead,NULL);
+    pthread_mutex_init(&data->last_meal,NULL);
+    pthread_mutex_init(&data->write_msg,NULL);
+    pthread_mutex_init(&data->ate,NULL);
+       
 }
 void init_forks(t_data *data)
 {

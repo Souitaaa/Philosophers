@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/04 19:34:40 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/20 16:12:01 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/20 16:53:30 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,11 @@ typedef struct s_data
     size_t num_of_meals; 
     struct s_philo *philo;  
     pthread_mutex_t *forks;
+    pthread_mutex_t write_msg;
+    pthread_mutex_t last_meal;
+    pthread_mutex_t is_dead;
+    pthread_mutex_t ate;
+    pthread_t *philo_threads;
 }t_data;
 
 // void *print_message_function( void *ptr );
@@ -47,7 +52,6 @@ void	ft_putstr_fd(char *s, int fd);
 long	ft_atoi(char *str);
 size_t	ft_strlen(char *s);
 void init(int ac , char *av[], t_data *data);
-size_t get_time_of_day()
-
+size_t get_time_of_day();
 
 #endif 

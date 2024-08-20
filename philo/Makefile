@@ -1,6 +1,6 @@
 NAME			= philo
 
-SRCS	= 	philo.c \
+SRCS			= 	philo.c ft_atoi.c ft_putstr.c ft_strlen.c init.c\
 
 CC				= cc
 RM				= rm -f
@@ -11,7 +11,7 @@ OBJS			= $(SRCS:.c=.o)
 all:			$(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) -lreadline
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
 
 clean:

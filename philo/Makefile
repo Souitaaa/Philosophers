@@ -1,6 +1,6 @@
 NAME			= philo
 
-SRCS			= 	philo.c ft_atoi.c ft_putstr.c ft_strlen.c init.c\
+SRCS			= 	philo.c ft_atoi.c ft_putstr.c ft_strlen.c init.c ft_memset.c\
 
 CC				= cc
 RM				= rm -f

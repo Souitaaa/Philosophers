@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 15:39:05 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/22 20:35:53 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/23 20:13:17 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,27 @@ size_t get_time_of_day()
 {
     struct  timeval tv;
     size_t time;
+	gettimeofday(&tv, NULL);
     time = tv.tv_sec * 1000 + tv.tv_sec / 1000;
     return time;
 }
+// #include <sys/time.h>
+// #include <stddef.h>
+
+// size_t get_time_of_day()
+// {
+//     struct timeval tv;
+//     size_t time;
+
+//     // Populate tv with the current time
+//     gettimeofday(&tv, NULL);
+
+//     // Convert the time to milliseconds
+//     time = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+
+//     return time;
+// }
+
 
 void ft_sleep(t_data *data , size_t time)
 {
@@ -55,21 +73,25 @@ void is_sleeping(t_philo *philo)
     {
         printf("is_dead");
         return;
-    }
+    }   
     pthread_mutex_unlock(&philo->data->is_dead);
     message("is thinking",philo);
 }
 
-void routine(void *data)
+void *routine(void *data)
 {
     t_philo *philo;
     philo = (t_philo *)data;
     if(philo->id % 2 == 0)
-        usleep(200);
-    is_eating(philo);
-    is_sleeping(philo);
-    if(philo->data->num_of_philos < 20)
-        usleep(500);
+        usleep(200);  
+    while(1)
+    {        
+        is_eating(philo);
+        is_sleeping(philo);
+        if(philo->data->num_of_philos < 20)
+            usleep(500);
+    }      
+    return NULL;
 }
 
 void message(char *str ,t_philo *philo)
@@ -83,8 +105,25 @@ void message(char *str ,t_philo *philo)
         return;
     }
     pthread_mutex_unlock(&philo->data->is_dead);
-    printf("%ld,%d,%s",get_time_of_day() - philo->data->start ,philo->data->philo->id,str);
+    printf(" %ld %d %s\n", get_time_of_day() - philo->data->start ,philo->id,str);
     pthread_mutex_unlock(&philo->data->write_msg);
+}
+
+void create_join_threads(t_data *data)
+{
+    size_t i = 0;
+    
+    while(i < data->num_of_philos)
+    {
+        pthread_create(&data->philo_threads[i],NULL,routine,&data->philo[i]);
+        i++;
+    }
+    i = 0;
+    while(i < data->num_of_philos)
+    {
+        pthread_join(data->philo_threads[i],NULL);
+        i++;
+    }
 }
 
 void is_eating(t_philo *philo)
@@ -107,17 +146,16 @@ void is_eating(t_philo *philo)
 
 int main(int ac, char *av[])
 {
-    t_data *data = NULL;
+    t_data data;
     int i = 1;
     long num ;
-    // ft_memset(&data,0,sizeof(t_data));
-    // exit(1);
-    // data->start = get_time_of_day();
-    // if (ac != 5 && ac != 6)
-    // {
-    //     ft_putstr_fd("Error in arguments",2);
-    //     return 1;
-    // } 
+    ft_memset(&data,0,sizeof(t_data));
+    data.start = get_time_of_day();
+    if (ac != 5 && ac != 6)
+    {
+        ft_putstr_fd("Error in arguments",2);
+        return 1;
+    } 
     while(ac > i)
     {
         num  = ft_atoi(av[i]);
@@ -130,7 +168,8 @@ int main(int ac, char *av[])
         }
         i++;
     }
-    init(ac,av,data);
-    data->start = get_time_of_day();
+    // data.start = get_time_of_day();
+    init(ac,av,&data);
+    create_join_threads(&data);
     return 0;
 }

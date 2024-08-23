@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/04 19:34:40 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/22 18:28:44 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/23 20:05:53 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ typedef struct s_data
     pthread_t *philo_threads;
     int is_dead_flag;
     int eating;
-    int start;
+    size_t start;
     int time_of_last_meal;
     int meals_eaten;  
 }t_data;
@@ -64,6 +64,6 @@ size_t get_time_of_day();
 void init_philo(t_data *data);
 void init_forks(t_data *data);
 void init(int ac , char *av[], t_data *data);
-void allocate_stuffs(t_data *data);
+int allocate_stuffs(t_data *data);
 
 #endif 

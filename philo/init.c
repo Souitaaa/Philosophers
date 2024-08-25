@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 16:02:10 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/23 20:08:06 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/25 19:01:39 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,30 +29,29 @@ int allocate_stuffs(t_data *data)
 
 void init_forks(t_data *data)
 {
-    size_t i = 0;
-    while( i < data->num_of_philos)
-        pthread_mutex_init(&data->forks[i++],NULL);
+    int i = -1;
+    while(++i < data->num_of_philos)
+        pthread_mutex_init(&data->forks[i],NULL);
 }
 
 void init_philo(t_data *data)
 {
-    size_t i = 0;
-    while( i < data->num_of_philos)
+    int i = -1;
+    while(++i < data->num_of_philos)
     {     
         data->philo[i].id = i + 1;
-        data->philo[i].left_fork = data->forks[i];
-        data->philo[i].right_fork = data->forks[(i + 1 ) % data->num_of_philos];
+        data->philo[i].left_fork = &data->forks[i];
+        data->philo[i].right_fork = &data->forks[(i + 1 ) % data->num_of_philos];
         data->philo[i].data = data;
         data->meals_eaten = 0;
         data->eating = 0;
         data->is_dead_flag = 0;
-        data->time_of_last_meal = 0;
+        data->philo[i].time_of_last_meal = 0;
         if((data->philo[i].id % 2) == 0)
         {
-            data->philo[i].right_fork = data->forks[i];
-            data->philo[i].left_fork = data->forks[(i + 1) % data->num_of_philos];
+            data->philo[i].left_fork = &data->forks[(i + 1) % data->num_of_philos];
+            data->philo[i].right_fork = &data->forks[i];
         }
-        i++;
     }
 }
 

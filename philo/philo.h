@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/04 19:34:40 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/23 20:05:53 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/25 18:58:29 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,21 @@
 typedef struct s_philo
 {
     int id ;
-    pthread_mutex_t right_fork;
-    pthread_mutex_t left_fork;      
+    pthread_mutex_t *right_fork;
+    pthread_mutex_t *left_fork;      
     struct s_data *data; 
+    int time_of_last_meal;
+    // pthread_t monitor;
 }t_philo;
 
 
 typedef struct s_data
 {
-    size_t time_to_eat;
-    size_t time_to_sleep;
-    size_t time_to_die;
-    size_t num_of_philos;
-    size_t num_of_meals; 
+    long time_to_eat;
+    long time_to_sleep;
+    long time_to_die;
+    long num_of_philos;
+    long num_of_meals; 
     struct s_philo *philo;  
     pthread_mutex_t *forks;
     pthread_mutex_t write_msg;
@@ -46,7 +48,6 @@ typedef struct s_data
     int is_dead_flag;
     int eating;
     size_t start;
-    int time_of_last_meal;
     int meals_eaten;  
 }t_data;
 
@@ -56,11 +57,10 @@ void	*ft_memset(void *b, int c, size_t len);
 long	ft_atoi(char *str);
 size_t	ft_strlen(char *s);
 void init(int ac , char *av[], t_data *data);
-size_t get_time_of_day();
+long get_time_of_day();
 void is_eating(t_philo *philo);
 void message(char *str ,t_philo *data);
-void ft_sleep(t_data *data , size_t time);
-size_t get_time_of_day();
+void ft_sleep(t_data *data , long time);
 void init_philo(t_data *data);
 void init_forks(t_data *data);
 void init(int ac , char *av[], t_data *data);

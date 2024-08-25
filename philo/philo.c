@@ -6,19 +6,17 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 15:39:05 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/23 20:13:17 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/25 19:56:42 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-size_t get_time_of_day()
+long get_time_of_day()
 {
     struct  timeval tv;
-    size_t time;
 	gettimeofday(&tv, NULL);
-    time = tv.tv_sec * 1000 + tv.tv_sec / 1000;
-    return time;
+    return((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 // #include <sys/time.h>
 // #include <stddef.h>
@@ -38,9 +36,9 @@ size_t get_time_of_day()
 // }
 
 
-void ft_sleep(t_data *data , size_t time)
+void ft_sleep(t_data *data , long time)
 {
-    int start ;
+    long start ;
     start = get_time_of_day();
     while (get_time_of_day() - start < time)
     {
@@ -51,7 +49,7 @@ void ft_sleep(t_data *data , size_t time)
             break;
         }
         pthread_mutex_unlock(&data->is_dead);
-        sleep(100);
+        usleep(10);
     }
 }
 
@@ -64,8 +62,8 @@ void is_sleeping(t_philo *philo)
         return;
     }
     pthread_mutex_unlock(&philo->data->is_dead);
-    if(philo->id % 2 == 0)
-        usleep(200);
+    // if(philo->id % 2 == 0)
+    //     usleep(200);
     message("is sleeping",philo);
     ft_sleep(philo->data ,philo->data->time_to_sleep);
     pthread_mutex_lock(&philo->data->is_dead);
@@ -76,6 +74,7 @@ void is_sleeping(t_philo *philo)
     }   
     pthread_mutex_unlock(&philo->data->is_dead);
     message("is thinking",philo);
+    usleep(500);
 }
 
 void *routine(void *data)
@@ -88,9 +87,39 @@ void *routine(void *data)
     {        
         is_eating(philo);
         is_sleeping(philo);
-        if(philo->data->num_of_philos < 20)
-            usleep(500);
+        // if(philo->data->num_of_philos < 20)
+        //     usleep(500);
     }      
+    return NULL;
+}
+
+void *monitor(void *arg)
+{
+    int i = -1;
+    long last_time_meal = 0;
+    t_data *data = (t_data *)arg;
+    while(1)    
+    {
+        i = 0; 
+        while(i < data->num_of_philos)
+        {
+            pthread_mutex_lock(&data->last_meal);
+            printf("last_time_mea11111111111l= %ld -----------\n",last_time_meal);
+            printf("time to die 111111111111== %ld\n",data->time_to_die);
+            last_time_meal = get_time_of_day() - data->philo[i].time_of_last_meal;
+            printf("last_time_meal222222222222= %ld -----------\n",last_time_meal);
+            printf("time to die22222222222222 == %ld\n",data->time_to_die);
+            pthread_mutex_unlock(&data->last_meal);
+            if(last_time_meal > data->time_to_die)
+            {
+                pthread_mutex_lock(&data->is_dead);
+                data->is_dead_flag = 1;
+                pthread_mutex_unlock(&data->is_dead);
+                printf("%ld %d ,%s" ,get_time_of_day() - data->start,data->philo[i].id,"is dead");
+            }
+            i++;
+        }
+    }
     return NULL;
 }
 
@@ -105,20 +134,20 @@ void message(char *str ,t_philo *philo)
         return;
     }
     pthread_mutex_unlock(&philo->data->is_dead);
-    printf(" %ld %d %s\n", get_time_of_day() - philo->data->start ,philo->id,str);
+    printf("%ld %d %s\n", get_time_of_day() - philo->data->start ,philo->id,str);
     pthread_mutex_unlock(&philo->data->write_msg);
 }
 
 void create_join_threads(t_data *data)
 {
-    size_t i = 0;
-    
-    while(i < data->num_of_philos)
-    {
+    int i = -1;
+    pthread_t monitorr ;
+    data->start = get_time_of_day();
+    while(++i < data->num_of_philos)
         pthread_create(&data->philo_threads[i],NULL,routine,&data->philo[i]);
-        i++;
-    }
+    pthread_create(&monitorr,NULL,monitor,data);
     i = 0;
+    pthread_join(monitorr,NULL);
     while(i < data->num_of_philos)
     {
         pthread_join(data->philo_threads[i],NULL);
@@ -128,20 +157,26 @@ void create_join_threads(t_data *data)
 
 void is_eating(t_philo *philo)
 {
-    pthread_mutex_lock(&philo->left_fork);
-    message("has taken a fork",philo);
-    pthread_mutex_lock(&philo->right_fork);
-    message("has taken a fork",philo);
-    message("is eating",philo);
-    pthread_mutex_lock(&philo->data->ate);
-    philo->data->eating++;
-    pthread_mutex_unlock(&philo->data->ate);
+    pthread_mutex_lock(philo->left_fork);
+    printf("%ld %d %s\n", get_time_of_day() - philo->data->start ,philo->id, "has taken a fork");
+
+    // message("has taken a fork",philo);
+    pthread_mutex_lock(philo->right_fork);
+    printf("%ld %d %s\n", get_time_of_day() - philo->data->start ,philo->id, "has taken a fork");
+
+    // message("has taken a fork",philo);
+    // message("is eating",philo);
+    printf("%ld %d %s\n", get_time_of_day() - philo->data->start ,philo->id, "is eating");
+    ft_sleep(philo->data,philo->data->time_to_eat);
+    // philo->data->eating++;
     pthread_mutex_lock(&philo->data->last_meal);
-    philo->data->time_of_last_meal = get_time_of_day();
+    philo->time_of_last_meal = get_time_of_day();
     pthread_mutex_unlock(&philo->data->last_meal);
+    pthread_mutex_lock(&philo->data->ate);
     philo->data->meals_eaten++;
-    pthread_mutex_unlock(&philo->left_fork);
-    pthread_mutex_unlock(&philo->right_fork);
+    pthread_mutex_unlock(&philo->data->ate);
+    pthread_mutex_unlock(philo->left_fork);
+    pthread_mutex_unlock(philo->right_fork);
 }
 
 int main(int ac, char *av[])
@@ -149,8 +184,7 @@ int main(int ac, char *av[])
     t_data data;
     int i = 1;
     long num ;
-    ft_memset(&data,0,sizeof(t_data));
-    data.start = get_time_of_day();
+    ft_memset(&data, 0, sizeof(t_data));
     if (ac != 5 && ac != 6)
     {
         ft_putstr_fd("Error in arguments",2);

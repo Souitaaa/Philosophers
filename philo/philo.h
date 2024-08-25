@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/04 19:34:40 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/25 18:58:29 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/25 20:35:33 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ typedef struct s_philo
     pthread_mutex_t *right_fork;
     pthread_mutex_t *left_fork;      
     struct s_data *data; 
-    int time_of_last_meal;
+    long time_of_last_meal;
     // pthread_t monitor;
 }t_philo;
 

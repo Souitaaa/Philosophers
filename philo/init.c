@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/18 16:02:10 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/25 19:01:39 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/25 20:36:29 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void init_philo(t_data *data)
         data->meals_eaten = 0;
         data->eating = 0;
         data->is_dead_flag = 0;
-        data->philo[i].time_of_last_meal = 0;
+        data->philo[i].time_of_last_meal = get_time_of_day();
         if((data->philo[i].id % 2) == 0)
         {
             data->philo[i].left_fork = &data->forks[(i + 1) % data->num_of_philos];

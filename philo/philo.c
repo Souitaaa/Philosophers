@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 15:39:05 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/25 21:16:04 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/26 21:10:21 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,12 @@ void ft_sleep(t_data *data , long time)
         pthread_mutex_lock(&data->is_dead);
         if(data->is_dead_flag)
         {
-            printf("is dead");
+            // printf("is dead1\n");
+            pthread_mutex_unlock(&data->is_dead);
             break;
         }
         pthread_mutex_unlock(&data->is_dead);
-        usleep(10);
+        usleep(500);
     }
 }
 
@@ -58,7 +59,8 @@ void is_sleeping(t_philo *philo)
     pthread_mutex_lock(&philo->data->is_dead);
     if(philo->data->is_dead_flag)
     {
-        printf("is_dead");
+        // printf("is dead2\n");
+        pthread_mutex_unlock(&philo->data->is_dead);
         return;
     }
     pthread_mutex_unlock(&philo->data->is_dead);
@@ -69,7 +71,8 @@ void is_sleeping(t_philo *philo)
     pthread_mutex_lock(&philo->data->is_dead);
     if(philo->data->is_dead_flag)
     {
-        printf("is_dead");
+        // printf("is dead3\n");
+        pthread_mutex_unlock(&philo->data->is_dead);
         return;
     }   
     pthread_mutex_unlock(&philo->data->is_dead);
@@ -89,51 +92,55 @@ void *routine(void *data)
         if(philo->data->is_dead_flag)
         {
             pthread_mutex_unlock(&philo->data->is_dead);
-            break;
+            return NULL;
         }
         pthread_mutex_unlock(&philo->data->is_dead);
         
         is_eating(philo);
         is_sleeping(philo);
         // printf("loop\n");
+        usleep(500);
     }      
+    // printf("rotine out\n");
     return NULL;
 }
 
 void *monitor(void *arg)
 {
     int i = -1;
-    long last_time_meal = 0;
+    // long last_time_meal = 0;
     t_data *data = (t_data *)arg;
     while(1)    
     {
         i = -1; 
         while(++i < data->num_of_philos)
         {
-            pthread_mutex_lock(&data->last_meal);
             // printf("last_time_mea11111111111l= %ld -----------\n",last_time_meal);
             // printf("time to die 111111111111== %ld\n",data->time_to_die);
             // printf("data->philo[i].time_of_last_meal == %ld\n",data->philo[i].time_of_last_meal);
-            last_time_meal = get_time_of_day() - data->philo[i].time_of_last_meal;
+            // last_time_meal = get_time_of_day() - data->philo[i].time_of_last_meal;
             // printf("last_time_meal222222222222= %ld -----------\n",last_time_meal);
             // printf("time to die2222222222 == %ld\n",data->time_to_die);
-            pthread_mutex_unlock(&data->last_meal);
-            if(last_time_meal > data->time_to_die)
+            pthread_mutex_lock(&data->last_meal);
+            if( get_time_of_day() - data->philo[i].time_of_last_meal > data->time_to_die)
             {
                 // printf("lllllllllllllllllllllllllllll\n");
                 pthread_mutex_lock(&data->is_dead); 
                 data->is_dead_flag = 1;
                 pthread_mutex_unlock(&data->is_dead);
-                printf("%ld %d %s" ,get_time_of_day() - data->start,data->philo[i].id,"is deadd\n");
+                printf("%ld %d %s" ,get_time_of_day() - data->start,data->philo[i].id,"is dead\n");
                 // printf("loop\n");
                 // break;
+                pthread_mutex_unlock(&data->last_meal);
                 return NULL;
             }
+            pthread_mutex_unlock(&data->last_meal);
             // i++;
         }
-                // printf("loop\n");
+                // printf("loop1\n");
     }
-    printf("end of monitor\n");
+    return NULL;
+    // printf("end of monitor\n");
 }
 
 void message(char *str ,t_philo *philo)
@@ -142,7 +149,7 @@ void message(char *str ,t_philo *philo)
     pthread_mutex_lock(&philo->data->is_dead);
     if(philo->data->is_dead_flag)
     {
-        printf("is dead 2");
+        // printf("is dead5\n");
         pthread_mutex_unlock(&philo->data->is_dead);
         return;
     }
@@ -158,19 +165,26 @@ void create_join_threads(t_data *data)
     data->start = get_time_of_day();
     while(i < data->num_of_philos)
     {
-        pthread_create(&data->philo_threads[i],NULL,routine,&data->philo[i]);   
+        pthread_create(&data->philo_threads[i],NULL,routine,&data->philo[i]);
         i++;
     }
     pthread_create(&monitorr,NULL,monitor,data);
-    i = 0;
     pthread_join(monitorr,NULL);
-    printf("loop\n");
+    // printf("loop2\n");
+    // printf("number of phiilos == %ld\n",data->num_of_philos);
+    i = 0;
     while(i < data->num_of_philos)
     {
         pthread_join(data->philo_threads[i],NULL);
         i++;
     }
+    // printf("loop\n");
 }
+
+// void philos_are_full(t_data *data)
+// {
+//     if(data->)
+// }
 
 void is_eating(t_philo *philo)
 {

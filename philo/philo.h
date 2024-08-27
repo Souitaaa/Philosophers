@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/04 19:34:40 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/25 20:35:33 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/27 22:07:44 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_philo
     pthread_mutex_t *left_fork;      
     struct s_data *data; 
     long time_of_last_meal;
+    long meals_eaten;  
     // pthread_t monitor;
 }t_philo;
 
@@ -48,7 +49,7 @@ typedef struct s_data
     int is_dead_flag;
     int eating;
     size_t start;
-    int meals_eaten;  
+    
 }t_data;
 
 // void *print_message_function( void *ptr );
@@ -65,5 +66,6 @@ void init_philo(t_data *data);
 void init_forks(t_data *data);
 void init(int ac , char *av[], t_data *data);
 int allocate_stuffs(t_data *data);
+int finished_meals(t_data *data);
 
 #endif 

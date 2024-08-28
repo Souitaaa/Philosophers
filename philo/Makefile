@@ -1,14 +1,16 @@
 NAME			= philo
 
-SRCS			= 	philo.c ft_atoi.c ft_putstr.c ft_strlen.c init.c ft_memset.c\
+SRCS			= 	philo.c ft_atoi.c ft_putstr.c ft_strlen.c init.c ft_memset.c \
 
 CC				= cc
 RM				= rm -f
-CFLAGS			= -Wall -Wextra -Werror -fsanitize=thread
-# CFLAGS			= 
+# CFLAGS			= -Wall -Wextra -Werror -g3 -fsanitize=thread
+# CFLAGS			= -Wall -Wextra -Werror -fsanitize=address
+CFLAGS			= -Wall -Wextra -Werror
 OBJS			= $(SRCS:.c=.o)
 
-all:			$(NAME)
+all: $(NAME) clean
+	@clear
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)

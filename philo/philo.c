@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 15:39:05 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/28 21:00:58 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/28 22:53:56 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void ft_sleep(t_data *data , long time)
             break;
         }
         pthread_mutex_unlock(&data->is_dead);
-        usleep(500);
+        // usleep(500);
     }
 }
 
@@ -77,43 +77,37 @@ void *routine(void *data)
         is_eating(philo);
         if(is_sleeping(philo) == 0)
             break;
-        // usleep(500);
     }      
     return NULL;
 }
 
 void *monitor(void *arg)
 {
-    int i = 0;
+    // int i = 0;
     t_data *data = (t_data *)arg;
 
     while(1)    
     {
-        if(data->num_of_meals > 0)
-        {
-            if(finished_meals(data->philo->data))
+            if(data->num_of_meals > 0 && finished_meals(data->philo->data))
             {
                 pthread_mutex_lock(&data->is_dead);
                 data->is_dead_flag = 1;
                 pthread_mutex_unlock(&data->is_dead);
                 return (NULL);
             }
-        }
             pthread_mutex_lock(&data->last_meal);
-            if(get_time_of_day() - data->philo[i].time_of_last_meal > data->time_to_die)
+            if(get_time_of_day() - data->philo->time_of_last_meal > data->time_to_die)
             {
                 message("is dead",data->philo);
                 pthread_mutex_lock(&data->is_dead); 
                 data->is_dead_flag = 1;
                 pthread_mutex_unlock(&data->is_dead);
-                
                 pthread_mutex_unlock(&data->last_meal);
                 return NULL;
             }
             pthread_mutex_unlock(&data->last_meal);
     }
     return NULL;
-    
 }
 
 int finished_meals(t_data *data)
@@ -186,8 +180,8 @@ void is_eating(t_philo *philo)
     pthread_mutex_lock(&philo->data->is_dead);
     if(philo->data->is_dead_flag)
     {
-        return ;
         pthread_mutex_unlock(&philo->data->is_dead);
+        return ;
     }
     pthread_mutex_unlock(&philo->data->is_dead);
     pthread_mutex_lock(philo->left_fork);

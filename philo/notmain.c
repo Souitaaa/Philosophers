@@ -6,7 +6,7 @@
 /*   By: csouita <csouita@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/17 15:39:05 by csouita           #+#    #+#             */
-/*   Updated: 2024/08/30 17:18:42 by csouita          ###   ########.fr       */
+/*   Updated: 2024/08/30 20:49:40 by csouita          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ int	finished_meals(t_data *data)
 
 void	message(char *str, t_philo *philo)
 {
-	pthread_mutex_lock(&philo->data->write_msg);
 	pthread_mutex_lock(&philo->data->is_dead);
 	if (philo->data->is_dead_flag)
 	{
@@ -59,7 +58,6 @@ void	message(char *str, t_philo *philo)
 		pthread_mutex_unlock(&philo->data->is_dead);
 		return ;
 	}
-	pthread_mutex_lock(&philo->data->write_msg);
 	printf("%ld %d %s\n", get_time_of_day() - philo->data->start, philo->id,
 		str);
 	pthread_mutex_unlock(&philo->data->write_msg);
